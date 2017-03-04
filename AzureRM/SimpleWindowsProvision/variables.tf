@@ -30,7 +30,7 @@ variable "azurerm_vm_admin_password" {
 
 variable "vm_name_prefix" {
   type    = "string"
-  default = "pgdemo"
+  default = "winvm"
 }
 
 variable "vm_winrm_port" {
