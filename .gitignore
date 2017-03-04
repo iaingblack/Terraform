@@ -1,2 +1,4 @@
 /AzureRM/SimpleWindowsProvision/Credentials.ps1
 /AzureRM/SimpleWindowsProvision/Credentials.tf
+terraform.tfstate
+terraform.tfstate.backup

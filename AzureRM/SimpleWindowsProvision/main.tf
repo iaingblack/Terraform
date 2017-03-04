@@ -1,6 +1,6 @@
 #-RESOURCE GROUP---------------------------------------------------------------
 resource "azurerm_resource_group" "demo" {
-  name     = "demo-resource-group"
+  name     = "demo-resource-group2"
   location = "${var.azurerm_location}"
 }
 
@@ -126,28 +126,27 @@ resource "azurerm_network_security_rule" "winrmRule" {
 }
 
 #-VM NAT Rules-----------------------------------------------------------------
-resource "azurerm_lb_nat_rule" "winrm_nat" {
-  location                       = "${var.azure_region_fullname}"
-  resource_group_name            = "${azurerm_resource_group.resource_group.name}"
-  loadbalancer_id                = "${azurerm_lb.load_balancer.id}"
-  name                           = "WinRM-HTTPS-vm-${count.index}"
-  protocol                       = "Tcp"
-  frontend_port                  = "${count.index + 10000}"
-  backend_port                   = "${var.vm_winrm_port}"
-  frontend_ip_configuration_name = "${var.vm_name_prefix}-ipconfig"
-  count                          = "${var.vm_count}"
-}
-
 resource "azurerm_lb_nat_rule" "rdp_nat" {
   location                       = "${var.azure_region_fullname}"
-  resource_group_name            = "${azurerm_resource_group.resource_group.name}"
-  loadbalancer_id                = "${azurerm_lb.load_balancer.id}"
+  resource_group_name            = "${azurerm_resource_group.demo.name}"
+  loadbalancer_id                = "${azurerm_lb.demo.id}"
   name                           = "RDP-vm-${count.index}"
   protocol                       = "Tcp"
   frontend_port                  = "${count.index + 11000}"
   backend_port                   = "3389"
   frontend_ip_configuration_name = "${var.vm_name_prefix}-ipconfig"
-  count                          = "${var.vm_count}"
+  count                          = "${var.azurerm_instances}"
+}
+resource "azurerm_lb_nat_rule" "winrm_nat" {
+  location                       = "${var.azure_region_fullname}"
+  resource_group_name            = "${azurerm_resource_group.demo.name}"
+  loadbalancer_id                = "${azurerm_lb.demo.id}"
+  name                           = "WINRM-vm-${count.index}"
+  protocol                       = "Tcp"
+  frontend_port                  = "${count.index + 11000}"
+  backend_port                   = "${var.vm_winrm_port}"
+  frontend_ip_configuration_name = "${var.vm_name_prefix}-ipconfig"
+  count                          = "${var.azurerm_instances}"
 }
 
 #-VM---------------------------------------------------------------------------
@@ -225,8 +224,8 @@ resource "azurerm_virtual_machine" "demo" {
   #   ]
   # }
   provisioner "file" {
-    source      = "ProxyGenerator4.1.2.202859.zip"
-    destination = "c:/ProxyGenerator4.1.2.202859.zip"
+    source      = "README.md"
+    destination = "c:/README.md"
 
     connection {
       type     = "winrm"
