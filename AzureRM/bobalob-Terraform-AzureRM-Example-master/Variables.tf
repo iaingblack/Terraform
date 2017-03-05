@@ -1,6 +1,6 @@
 variable "azure_resource_group_name" {
     description = "Resource Group Name"
-    default = "ib-bobalob"
+    default = "ibbobalob"
 }
 
 variable "vm_name_prefix" { 
@@ -65,4 +65,3 @@ variable "environment_tag" {
 #output "full_vm_dns_name" {
 #    value = "${null_resource.intermediates.triggers.full_vm_dns_name}"
 #}
-s
