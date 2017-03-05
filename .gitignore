@@ -2,3 +2,4 @@
 /AzureRM/SimpleWindowsProvision/Credentials.tf
 terraform.tfstate
 terraform.tfstate.backup
+/AzureRM/bobalob-Terraform-AzureRM-Example-master/Credentials.tf
