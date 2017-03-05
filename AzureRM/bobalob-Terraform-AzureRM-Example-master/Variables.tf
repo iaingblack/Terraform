@@ -1,11 +1,11 @@
 variable "azure_resource_group_name" {
     description = "Resource Group Name"
-    default = "ninjagroup"
+    default = "ib-bobalob"
 }
 
 variable "vm_name_prefix" { 
 	description = "The Virtual Machine Name"
-    default = "ninjatestvm"
+    default = "bobalob"
 }
 
 variable "vm_count" {
@@ -16,7 +16,7 @@ variable "vm_count" {
 #Re-applying a new size reboots the VMs and re-runs the provisioner scripts - Use DSC Push to configure to avoid errors
 variable "vm_size" { 
 	description = "Azure VM Size"
-    default = "Standard_A1"
+    default = "Standard_DS1_v2"
 }
 
 variable "vm_winrm_port" {
@@ -46,7 +46,7 @@ variable "admin_username" {
 
 variable "admin_password" {
     description = "Password for the Administrator account"
-    default = "jgjgJGJG!!!!"
+    default = "Password123!?"
 }
 
 variable "environment_tag" {
@@ -65,3 +65,4 @@ variable "environment_tag" {
 #output "full_vm_dns_name" {
 #    value = "${null_resource.intermediates.triggers.full_vm_dns_name}"
 #}
+s
