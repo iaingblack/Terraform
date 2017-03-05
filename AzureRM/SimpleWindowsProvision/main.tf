@@ -1,3 +1,9 @@
+#http://blog.superautomation.co.uk/2016/11/configuring-terraform-to-use-winrm-over.html
+# #Frontend IP pool seems unconnected to public IP
+# * azurerm_lb_nat_rule.winrm_nat: Error Expanding NAT Rule [ERROR] Cannot find FrontEnd IP Configuration with the name winvm-ipconfig
+# * azurerm_lb_nat_rule.rdp_nat: Error Expanding NAT Rule [ERROR] Cannot find FrontEnd IP Configuration with the name winvm-ipconfig
+# * unknown error Post https://demo-resource-group2.northeurope.cloudapp.azure.com:10000/wsman: dial tcp: lookup demo-resource-group2.northeurope.cloudapp.azure.com: no such host
+
 #-RESOURCE GROUP---------------------------------------------------------------
 resource "azurerm_resource_group" "demo" {
   name     = "demo-resource-group2"
@@ -78,7 +84,7 @@ resource "azurerm_storage_account" "demo" {
   name                = "${lower(random_id.storage_account.hex)}"
   resource_group_name = "${azurerm_resource_group.demo.name}"
   location            = "${var.azurerm_location}"
-  account_type        = "Standard_LRS"
+  account_type        = "Premium_LRS"
 }
 
 resource "azurerm_storage_container" "demo" {
