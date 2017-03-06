@@ -38,6 +38,11 @@ variable "vm_winrm_port" {
   default     = "5986"
 }
 
+variable "azure_dns_prefix" {
+  description = "Azure DNS suffix for the Public IP"
+  default     = "simpledemo"
+}
+
 variable "azure_dns_suffix" {
   description = "Azure DNS suffix for the Public IP"
   default     = "cloudapp.azure.com"

@@ -1,14 +1,11 @@
 #http://blog.superautomation.co.uk/2016/11/configuring-terraform-to-use-winrm-over.html
 # #Frontend IP pool seems unconnected to public IP
-# - On LoadBalancer, to creata an inbound NAT rule from Public IP to VM(s)
-# - On VM need to add a DNS name label 
-# * azurerm_lb_nat_rule.winrm_nat: Error Expanding NAT Rule [ERROR] Cannot find FrontEnd IP Configuration with the name winvm-ipconfig
-# * azurerm_lb_nat_rule.rdp_nat: Error Expanding NAT Rule [ERROR] Cannot find FrontEnd IP Configuration with the name winvm-ipconfig
+# - On NAT RUle, need the Target Virtual Machine and Network IP setup. Not sure how. Rules go nowhere just now
 # * unknown error Post https://demo-resource-group2.northeurope.cloudapp.azure.com:10000/wsman: dial tcp: lookup demo-resource-group2.northeurope.cloudapp.azure.com: no such host
-
+# https://github.com/hashicorp/terraform/issues/10561
 #-RESOURCE GROUP---------------------------------------------------------------
 resource "azurerm_resource_group" "demo" {
-  name     = "demo-resource-group2"
+  name     = "demo-resource-group4"
   location = "${var.azurerm_location}"
 }
 
@@ -27,26 +24,13 @@ resource "azurerm_subnet" "demo" {
   address_prefix       = "10.0.1.0/24"
 }
 
+#-PUBLIC IP--------------------------------------------------------------------
 resource "azurerm_public_ip" "demo" {
   name                         = "demo-public-ip"
   location                     = "${var.azurerm_location}"
   resource_group_name          = "${azurerm_resource_group.demo.name}"
   public_ip_address_allocation = "static"
-}
-
-#-VM NICS----------------------------------------------------------------------
-resource "azurerm_network_interface" "demo" {
-  count               = "${var.azurerm_instances}"
-  name                = "demo-interface-${count.index}"
-  location            = "${var.azurerm_location}"
-  resource_group_name = "${azurerm_resource_group.demo.name}"
-
-  ip_configuration {
-    name                                    = "demo-ip-${count.index}"
-    subnet_id                               = "${azurerm_subnet.demo.id}"
-    private_ip_address_allocation           = "dynamic"
-    load_balancer_backend_address_pools_ids = ["${azurerm_lb_backend_address_pool.demo.id}"]
-  }
+  domain_name_label            = "${var.azure_dns_prefix}"
 }
 
 #-LOAD BALANCER----------------------------------------------------------------
@@ -56,7 +40,7 @@ resource "azurerm_lb" "demo" {
   resource_group_name = "${azurerm_resource_group.demo.name}"
 
   frontend_ip_configuration {
-    name                          = "default"
+    name                          = "fe-ip-config"
     public_ip_address_id          = "${azurerm_public_ip.demo.id}"
     private_ip_address_allocation = "dynamic"
   }
@@ -75,7 +59,25 @@ resource "azurerm_availability_set" "demo" {
   resource_group_name = "${azurerm_resource_group.demo.name}"
 }
 
-# Generate a random_id as torage account names must be unique across the entire scope of Azure. 
+#-NICS PER VM------------------------------------------------------------------
+resource "azurerm_network_interface" "demo" {
+  count               = "${var.azurerm_instances}"
+  name                = "demo-interface-${count.index}"
+  location            = "${var.azurerm_location}"
+  resource_group_name = "${azurerm_resource_group.demo.name}"
+
+  #FIND MORE OPTIONS - azurerm_lb_nat_rule
+
+  ip_configuration {
+    name                                    = "demo-ip-${count.index}"
+    subnet_id                               = "${azurerm_subnet.demo.id}"
+    private_ip_address_allocation           = "dynamic"
+    load_balancer_backend_address_pools_ids = ["${azurerm_lb_backend_address_pool.demo.id}"]
+  }
+}
+
+
+# Generate a random_id as storage account names must be unique across the entire scope of Azure. 
 resource "random_id" "storage_account" {
   #prefix      = "storage"
   byte_length = "4"
@@ -98,13 +100,12 @@ resource "azurerm_storage_container" "demo" {
 }
 
 #-VM NSG-----------------------------------------------------------------------
-
 resource "azurerm_network_security_group" "vm_security_group" {
   name                = "${var.vm_name_prefix}-sg"
   location            = "${var.azure_region_fullname}"
   resource_group_name = "${azurerm_resource_group.demo.name}"
 }
-
+# Allow RDP from anywhere
 resource "azurerm_network_security_rule" "rdpRule" {
   name                        = "rdpRule"
   priority                    = 100
@@ -118,7 +119,7 @@ resource "azurerm_network_security_rule" "rdpRule" {
   resource_group_name         = "${azurerm_resource_group.demo.name}"
   network_security_group_name = "${azurerm_network_security_group.vm_security_group.name}"
 }
-
+# Allow WinRM from anywhere
 resource "azurerm_network_security_rule" "winrmRule" {
   name                        = "winrmRule"
   priority                    = 110
@@ -133,6 +134,7 @@ resource "azurerm_network_security_rule" "winrmRule" {
   network_security_group_name = "${azurerm_network_security_group.vm_security_group.name}"
 }
 
+#=VMs==========================================================================
 #-VM NAT Rules-----------------------------------------------------------------
 resource "azurerm_lb_nat_rule" "rdp_nat" {
   location                       = "${var.azure_region_fullname}"
@@ -142,7 +144,7 @@ resource "azurerm_lb_nat_rule" "rdp_nat" {
   protocol                       = "Tcp"
   frontend_port                  = "${count.index + 11000}"
   backend_port                   = "3389"
-  frontend_ip_configuration_name = "${var.vm_name_prefix}-ipconfig"
+  frontend_ip_configuration_name = "fe-ip-config"
   count                          = "${var.azurerm_instances}"
 }
 resource "azurerm_lb_nat_rule" "winrm_nat" {
@@ -151,13 +153,13 @@ resource "azurerm_lb_nat_rule" "winrm_nat" {
   loadbalancer_id                = "${azurerm_lb.demo.id}"
   name                           = "WINRM-vm-${count.index}"
   protocol                       = "Tcp"
-  frontend_port                  = "${count.index + 11000}"
+  frontend_port                  = "${count.index + 10000}"
   backend_port                   = "${var.vm_winrm_port}"
-  frontend_ip_configuration_name = "${var.vm_name_prefix}-ipconfig"
+  frontend_ip_configuration_name = "fe-ip-config"
   count                          = "${var.azurerm_instances}"
 }
 
-#-VM---------------------------------------------------------------------------
+#-VM CREATION------------------------------------------------------------------
 resource "azurerm_virtual_machine" "demo" {
   count                 = "${var.azurerm_instances}"
   name                  = "${var.vm_name_prefix}-${count.index}"
@@ -241,7 +243,7 @@ resource "azurerm_virtual_machine" "demo" {
       insecure = true
       user     = "${var.azurerm_vm_admin}"
       password = "${var.azurerm_vm_admin_password}"
-      host     = "${azurerm_resource_group.demo.name}.${var.azure_region}.${var.azure_dns_suffix}"
+      host     = "${var.azure_dns_prefix}.${var.azure_region}.${var.azure_dns_suffix}"
       port     = "${count.index + 10000}"
     }
   }
