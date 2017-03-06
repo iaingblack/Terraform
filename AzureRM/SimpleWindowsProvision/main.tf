@@ -3,7 +3,7 @@
 
 #-RESOURCE GROUP---------------------------------------------------------------
 resource "azurerm_resource_group" "demo" {
-  name     = "demo-resource-group4"
+  name     = "demo-resource-group"
   location = "${var.azurerm_location}"
 }
 
@@ -215,8 +215,8 @@ resource "azurerm_virtual_machine" "demo" {
 
   #_Setup Software_____________________________________________________________
   provisioner "file" {
-    source      = "README.md"
-    destination = "c:/README.md"
+    source      = "Install-Puppet.ps1"
+    destination = "c:/Install-Puppet.ps1"
 
     connection {
       type     = "winrm"
@@ -228,4 +228,19 @@ resource "azurerm_virtual_machine" "demo" {
       port     = "${count.index + 10000}"
     }
   }
+  provisioner "remote-exec" {
+      inline = [
+        "powershell.exe -sta -ExecutionPolicy Unrestricted -file C:\\Install-Puppet.ps1",
+      ]
+        connection {
+            type = "winrm"
+            timeout = "20m"
+            https = true
+            insecure = true      
+            user     = "${var.azurerm_vm_admin}"
+            password = "${var.azurerm_vm_admin_password}"
+            host     = "${var.azure_dns_prefix}.${var.azure_region}.${var.azure_dns_suffix}"
+            port     = "${count.index + 10000}"
+        }
+    }
 }

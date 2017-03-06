@@ -1,6 +1,6 @@
 variable "azurerm_instances" {
   type    = "string"
-  default = "1"
+  default = "2"
 }
 
 variable "azurerm_location" {

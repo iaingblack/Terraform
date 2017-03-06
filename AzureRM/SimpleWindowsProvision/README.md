@@ -1,6 +1,10 @@
+v1.01
+-----
+Puppet installs. Need to provision and split up a bit now
+
 v1.0
 ----
-Completely working. Now to test a puppet copy, install and provision
+Completely working. Now to break up a bit, test a puppet copy, install and provision.
 
 v0.13
 -----
