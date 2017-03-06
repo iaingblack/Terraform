@@ -1,9 +1,11 @@
+v1.0
+----
+Completely working. Now to test a puppet copy, install and provision
+
 v0.13
 -----
 # Just need to fix provisioners now
-# * unknown error Post https://simpledemo.northeurope.cloudapp.azure.com:10000/wsman: dial tcp 52.169.66.55:10000: connectex: A connection atte
-# mpt failed because the connected party did not properly respond after a period of time, or established connection failed because connected ho
-# st has failed to respond
+# * unknown error Post https://simpledemo.northeurope.cloudapp.azure.com:10000/wsman: dial tcp 52.169.66.55:10000: connectex: A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond
 
 v0.12
 -----

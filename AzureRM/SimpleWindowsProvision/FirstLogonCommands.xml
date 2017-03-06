@@ -1,6 +1,6 @@
 <FirstLogonCommands>
     <SynchronousCommand>
-        <CommandLine>cmd /c "copy Deploy.ps1 C:\Deploy.ps1"</CommandLine
+        <CommandLine>cmd /c "copy C:\AzureData\CustomData.bin C:\Deploy.PS1"</CommandLine
         ><Description>CopyScript</Description>
         <Order>11</Order>
     </SynchronousCommand>

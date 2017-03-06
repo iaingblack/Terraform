@@ -75,7 +75,6 @@ resource "azurerm_network_interface" "demo" {
   }
 }
 
-
 # Generate a random_id as storage account names must be unique across the entire scope of Azure. 
 resource "random_id" "storage_account" {
   #prefix      = "storage"
@@ -215,23 +214,6 @@ resource "azurerm_virtual_machine" "demo" {
   }
 
   #_Setup Software_____________________________________________________________
-  # provisioner "file" {
-  #   source      = "ProxyGenerator4.1.2.202859.zip"
-  #   destination = "c:/ProxyGenerator4.1.2.202859.zip"
-
-
-  #   connection {
-  #     type     = "winrm"
-  #     user     = "${var.azurerm_vm_admin}"
-  #     password = "${var.azurerm_vm_admin_password}"
-  #   }
-  # }
-
-  # provisioner "remote-exec" {
-  #   inline = [
-  #     "echo working > c:\testecho.txt",
-  #   ]
-  # }
   provisioner "file" {
     source      = "README.md"
     destination = "c:/README.md"
