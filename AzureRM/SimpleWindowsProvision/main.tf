@@ -1,8 +1,6 @@
-#http://blog.superautomation.co.uk/2016/11/configuring-terraform-to-use-winrm-over.html
-# #Frontend IP pool seems unconnected to public IP
-# - On NAT RUle, need the Target Virtual Machine and Network IP setup. Not sure how. Rules go nowhere just now
-# * unknown error Post https://demo-resource-group2.northeurope.cloudapp.azure.com:10000/wsman: dial tcp: lookup demo-resource-group2.northeurope.cloudapp.azure.com: no such host
+# http://blog.superautomation.co.uk/2016/11/configuring-terraform-to-use-winrm-over.html
 # https://github.com/hashicorp/terraform/issues/10561
+
 #-RESOURCE GROUP---------------------------------------------------------------
 resource "azurerm_resource_group" "demo" {
   name     = "demo-resource-group4"
@@ -73,6 +71,7 @@ resource "azurerm_network_interface" "demo" {
     subnet_id                               = "${azurerm_subnet.demo.id}"
     private_ip_address_allocation           = "dynamic"
     load_balancer_backend_address_pools_ids = ["${azurerm_lb_backend_address_pool.demo.id}"]
+    load_balancer_inbound_nat_rules_ids     = ["${element(azurerm_lb_nat_rule.rdp_nat.*.id, count.index)}", "${element(azurerm_lb_nat_rule.winrm_nat.*.id, count.index)}" ]    
   }
 }
 
