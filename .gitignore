@@ -3,3 +3,5 @@
 terraform.tfstate
 terraform.tfstate.backup
 /AzureRM/bobalob-Terraform-AzureRM-Example-master/Credentials.tf
+.terraform
+.terraform.lock.hcl
