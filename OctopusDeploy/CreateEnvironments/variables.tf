@@ -1,11 +1,11 @@
 variable "apiKey" {
-    type = string
+  type = string
 }
 
 variable "space" {
-    type = string
+  type = string
 }
 
 variable "serverURL" {
-    type = string
+  type = string
 }

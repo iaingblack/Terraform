@@ -1,10 +1,10 @@
 variable "azurerm_instances" {
-  type    = "string"
+  type    = string
   default = "2"
 }
 
 variable "azurerm_location" {
-  type    = "string"
+  type    = string
   default = "North Europe"
 }
 
@@ -19,17 +19,17 @@ variable "azure_region_fullname" {
 }
 
 variable "azurerm_vm_admin" {
-  type    = "string"
+  type    = string
   default = "azureuser"
 }
 
 variable "azurerm_vm_admin_password" {
-  type    = "string"
+  type    = string
   default = "Password123!?"
 }
 
 variable "vm_name_prefix" {
-  type    = "string"
+  type    = string
   default = "winvm"
 }
 
