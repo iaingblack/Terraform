@@ -70,8 +70,8 @@ resource "azurerm_network_interface" "demo" {
     name                                    = "demo-ip-${count.index}"
     subnet_id                               = azurerm_subnet.demo.id
     private_ip_address_allocation           = "dynamic"
-    load_balancer_backend_address_pools_ids = ["${azurerm_lb_backend_address_pool.demo.id}"]
-    load_balancer_inbound_nat_rules_ids     = ["${element(azurerm_lb_nat_rule.rdp_nat.*.id, count.index)}", "${element(azurerm_lb_nat_rule.winrm_nat.*.id, count.index)}"]
+    load_balancer_backend_address_pools_ids = [azurerm_lb_backend_address_pool.demo.id]
+    load_balancer_inbound_nat_rules_ids     = [element(azurerm_lb_nat_rule.rdp_nat.*.id, count.index), element(azurerm_lb_nat_rule.winrm_nat.*.id, count.index)]
   }
 }
 
@@ -163,7 +163,7 @@ resource "azurerm_virtual_machine" "demo" {
   name                  = "${var.vm_name_prefix}-${count.index}"
   location              = var.azurerm_location
   resource_group_name   = azurerm_resource_group.demo.name
-  network_interface_ids = ["${element(azurerm_network_interface.demo.*.id, count.index)}"]
+  network_interface_ids = [element(azurerm_network_interface.demo.*.id, count.index)]
   vm_size               = "Standard_DS1_v2"
   availability_set_id   = azurerm_availability_set.demo.id
 

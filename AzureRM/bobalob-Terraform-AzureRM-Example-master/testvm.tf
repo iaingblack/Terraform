@@ -34,8 +34,8 @@ resource "azurerm_network_interface" "vm_nic" {
     name                                    = "${var.vm_name_prefix}-${count.index}-ipConfig"
     subnet_id                               = azurerm_subnet.subnet1.id
     private_ip_address_allocation           = "dynamic"
-    load_balancer_backend_address_pools_ids = ["${azurerm_lb_backend_address_pool.backend_pool.id}"]
-    load_balancer_inbound_nat_rules_ids     = ["${element(azurerm_lb_nat_rule.winrm_nat.*.id, count.index)}"]
+    load_balancer_backend_address_pools_ids = [azurerm_lb_backend_address_pool.backend_pool.id]
+    load_balancer_inbound_nat_rules_ids     = [element(azurerm_lb_nat_rule.winrm_nat.*.id, count.index)]
   }
 
   tags {
@@ -47,7 +47,7 @@ resource "azurerm_virtual_machine" "virtual_machine" {
   name                             = "${var.vm_name_prefix}-${count.index}"
   location                         = var.azure_region_fullname
   resource_group_name              = azurerm_resource_group.resource_group.name
-  network_interface_ids            = ["${element(azurerm_network_interface.vm_nic.*.id, count.index)}"]
+  network_interface_ids            = [element(azurerm_network_interface.vm_nic.*.id, count.index)]
   vm_size                          = var.vm_size
   count                            = var.vm_count
   availability_set_id              = azurerm_availability_set.availability_set.id
