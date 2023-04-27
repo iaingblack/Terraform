@@ -13,16 +13,20 @@ provider "octopusdeploy" {
 }
 
 data "octopusdeploy_environments" "this" {
-  name = upper("dev")
-#  partial_name = "PR*"
+#  name = upper("dev")
+  partial_name = "PR"
   skip = 0
   take = 1
 }
 
-output "envs_found" {
-  value = data.octopusdeploy_environments.this.*
-}
+
+#output "envs_found" {
+#  value = data.octopusdeploy_environments.this.*
+#}
 
 output "env_name" {
-  value = data.octopusdeploy_environments.this.name
+  value = "${data.octopusdeploy_environments.this.environments[0].name}"
+}
+output "env_id" {
+  value = "${data.octopusdeploy_environments.this.environments[0].id}"
 }
