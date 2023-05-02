@@ -17,13 +17,13 @@ output "all_file_info" {
 
 # Outputs a single named key id
 output "single_file_id" {
-  value = module.file-creator["clienta"].file_id
+  value = module.file-creator["clienta"].id
 }
 
 # Outputs just the new file ids as a set (nt sure why, but the example showed this)
 output "all_file_ids_toset" {
   value = toset([
-    for  file_id in module.file-creator : file_id.file_id
+    for  file_id in module.file-creator : file_id.id
   ])
 }
 
@@ -31,6 +31,6 @@ output "all_file_ids_toset" {
 # https://www.reddit.com/r/Terraform/comments/jyz0dm/working_with_for_each_for_outputs_in_modules/
 output "all_file_ids_as_list" {
   value = [
-    for  file_id in module.file-creator : file_id.file_id
+    for files_id in module.file-creator : files_id.id
   ]
 }
