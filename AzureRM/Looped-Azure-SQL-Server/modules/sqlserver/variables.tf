@@ -18,3 +18,5 @@ variable "sqlserver_admin_user" {
 variable "sqlserver_admin_password" {
   default = "modulesqlserverpass"
 }
+variable "sqlserver_fw_rules" {
+}

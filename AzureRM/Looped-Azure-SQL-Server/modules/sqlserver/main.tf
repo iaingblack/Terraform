@@ -19,9 +19,10 @@ resource "time_sleep" "wait_for_sqlserver" {
 }
 
 resource "azurerm_sql_firewall_rule" "this" {
-  name                = "Public"
+  for_each            = { for index, rule in var.sqlserver_fw_rules : rule.name => rule }
+  name                = each.value.name
   resource_group_name = azurerm_mssql_server.this.resource_group_name
   server_name         = azurerm_mssql_server.this.name
-  start_ip_address    = "0.0.0.0"
-  end_ip_address      = "0.0.0.0"
+  start_ip_address    = each.value.start_ip_address
+  end_ip_address      = each.value.end_ip_address
 }
