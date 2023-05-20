@@ -4,6 +4,12 @@ locals {
   prefix                          = "ibtestsqlsvr"
   location                        = "northeurope"
   keyvault_secret_permissions_all = ["Set", "Get", "List", "Delete", "Purge", "Recover", "Restore", "Backup"]
+  env_type = "prod"
+  sql_server_dbs = {
+    "DB1" = { sku_name = "Basic", short_term_retention_policy = 1 },
+    "DB2" = { sku_name = "Basic", short_term_retention_policy = 1 },
+  }
+
 }
 resource "azurerm_resource_group" "this" {
   name     = local.prefix
@@ -53,34 +59,26 @@ resource "azurerm_key_vault_secret" "sqlserver_secrets" {
   key_vault_id = azurerm_key_vault.this.id
 }
 
-resource "azurerm_mssql_server" "this" {
-  name                         = "${local.prefix}sqlserver"
-  resource_group_name          = azurerm_resource_group.this.name
-  location                     = azurerm_resource_group.this.location
-  version                      = "12.0"
-  administrator_login          = "sqladmin"
-  administrator_login_password = random_password.sql_admin.result
-  minimum_tls_version          = "1.2"
 
-  lifecycle {
-    ignore_changes = [administrator_login_password]
-  }
-
+module "sqlserver" {
+  source                   = "./modules/sqlserver"
+  resource_group_name      = azurerm_resource_group.this.name
+  location                 = azurerm_resource_group.this.location
+  sqlserver_name           = "${local.prefix}sqlserver"
+  sqlserver_admin_user     = "sqladmin"
+  sqlserver_admin_password = random_password.sql_admin.result
 }
+module "sqlserverdb" {
+  source = "./modules/sqlserverdb"
 
-resource "azurerm_mssql_database" "this" {
-  name      = "${local.prefix}-db"
-  server_id = azurerm_mssql_server.this.id
-  sku_name  = "Basic"
+  # DB Information from Variable 'sql_server_dbs' - Creates a DB for each entry
+  for_each = local.sql_server_dbs
 
-  short_term_retention_policy {
-    retention_days = 1
-  }
-}
-
-resource "azurerm_management_lock" "this" {
-  name       = "DBLock"
-  scope      = azurerm_mssql_database.this.id
-  lock_level = "CanNotDelete"
-  notes      = "We dont want to delete by accident"
+  # VERY IMPORTANT - If the env is DR the module will not create DBs, so we pass the env_type so it knows
+  env_type = local.env_type
+  sql_server_resource_group_name = azurerm_resource_group.this.name
+  sql_server_id                  = module.sqlserver.sqlserver_id
+  db_name  = each.key
+  sku_name = each.value.sku_name
+  short_term_retention_policy = each.value.short_term_retention_policy
 }
