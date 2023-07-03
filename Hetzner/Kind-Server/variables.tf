@@ -6,6 +6,5 @@ variable "size" {
   default = "cpx11"
 }
 
-variable "ssh_private_key" {
-  default = "~/.ssh/ib.ppk"
+variable "ssh_private_key_base64" {
 }

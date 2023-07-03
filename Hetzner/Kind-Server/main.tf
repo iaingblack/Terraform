@@ -3,11 +3,14 @@
 provider "hcloud" {
   token = var.hcloud_token
 }
+locals {
+  local_ppk_filename = "key.ppk"
+}
 
-#resource "hcloud_ssh_key" "this" {
-#  name       = "MyKey"
-#  public_key = file("~/.ssh/ib.pub")
-#}
+resource "local_file" "ssh" {
+  content_base64  = var.ssh_private_key_base64
+  filename = local.local_ppk_filename
+}
 
 resource "hcloud_network" "network" {
   name     = "network"
@@ -34,7 +37,8 @@ resource "hcloud_server" "this" {
     connection {
       type        = "ssh"
       user        = "root"
-      private_key = file(pathexpand("${var.ssh_private_key}"))
+      private_key = file(pathexpand("${local_file.ssh.filename}"))
+#      private_key = var.ssh_private_key
       host        = hcloud_server.this.ipv4_address
     }
   }
@@ -47,7 +51,8 @@ resource "hcloud_server" "this" {
     connection {
       type        = "ssh"
       user        = "root"
-      private_key = file(pathexpand("${var.ssh_private_key}"))
+      private_key = file(pathexpand("${local_file.ssh.filename}"))
+#      private_key = var.ssh_private_key
       host        = hcloud_server.this.ipv4_address
     }
   }
