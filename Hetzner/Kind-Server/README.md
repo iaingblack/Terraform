@@ -2,8 +2,7 @@
 
 ```bash
 export TF_VAR_hcloud_token=""
-export TF_VAR_ssh_private_key="-----BEGIN OPENSSH PRIVATE KEY-----_secure_bit-----END OPENSSH PRIVATE KEY-----"
-export TF_VAR_ssh_private_key=""
+export TF_VAR_ssh_private_key_base64=""
 
 terraform init
 terraform plan
