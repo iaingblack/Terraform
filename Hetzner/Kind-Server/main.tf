@@ -10,6 +10,7 @@ locals {
 resource "local_file" "ssh" {
   content_base64  = var.ssh_private_key_base64
   filename = local.local_ppk_filename
+  file_permission = "0600"
 }
 
 resource "hcloud_network" "network" {
@@ -38,7 +39,6 @@ resource "hcloud_server" "this" {
       type        = "ssh"
       user        = "root"
       private_key = file(pathexpand("${local_file.ssh.filename}"))
-#      private_key = var.ssh_private_key
       host        = hcloud_server.this.ipv4_address
     }
   }
@@ -52,7 +52,6 @@ resource "hcloud_server" "this" {
       type        = "ssh"
       user        = "root"
       private_key = file(pathexpand("${local_file.ssh.filename}"))
-#      private_key = var.ssh_private_key
       host        = hcloud_server.this.ipv4_address
     }
   }
@@ -65,13 +64,39 @@ resource "hcloud_server" "this" {
       "10.0.1.7"
     ]
   }
-
   depends_on = [
     hcloud_network_subnet.network-subnet
   ]
 }
 
-resource "local_file" "connect" {
-  filename = "connect.sh"
-  content  = "ssh -i ~/.ssh/ib.ppk root@${hcloud_server.this.ipv4_address}"
+data "template_file" "kind-config" {
+  template = "${file("${path.module}/templates/kind-config.yaml.template")}"
+  vars = {
+    ipv4_address = "${hcloud_server.this.ipv4_address}"
+  }
+}
+
+resource "null_resource" "create-kind-cluster" {
+  provisioner "remote-exec" {
+    inline = [
+      "echo \"${data.template_file.kind-config.rendered}\" > /tmp/k8s.yaml",
+      "kind create cluster --config=/tmp/k8s.yaml",
+      "cat .kube/config",
+    ]
+    connection {
+      type        = "ssh"
+      user        = "root"
+      private_key = file(pathexpand("${local_file.ssh.filename}"))
+      host        = hcloud_server.this.ipv4_address
+    }
+  }
+}
+
+resource "null_resource" "get-kube-config" {
+  provisioner "local-exec" {
+    command = "scp -i ${pathexpand("${local_file.ssh.filename}")} root@${hcloud_server.this.ipv4_address}:/root/.kube/config ~/kind_k8s.config"
+  }
+  depends_on = [
+    null_resource.create-kind-cluster
+  ]
 }

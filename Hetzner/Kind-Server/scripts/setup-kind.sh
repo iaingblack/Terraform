@@ -5,4 +5,4 @@ snap install kubectl --classic
 chmod +x ./kind
 mv ./kind /usr/local/bin/kind
 kind --version
-kind create cluster
+
