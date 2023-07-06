@@ -94,7 +94,8 @@ resource "null_resource" "create-kind-cluster" {
 
 resource "null_resource" "get-kube-config" {
   provisioner "local-exec" {
-    command = "scp -i ${pathexpand("${local_file.ssh.filename}")} root@${hcloud_server.this.ipv4_address}:/root/.kube/config ~/kind_k8s.config"
+    # Because we use an ipaddress tp connect to oir instance, ignore certificate mismatch errors
+    command = "scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${pathexpand("${local_file.ssh.filename}")} root@${hcloud_server.this.ipv4_address}:/root/.kube/config ~/kind_k8s.config"
   }
   depends_on = [
     null_resource.create-kind-cluster
