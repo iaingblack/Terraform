@@ -26,7 +26,7 @@ resource "hcloud_network_subnet" "network-subnet" {
 
 # Create a server
 resource "hcloud_server" "this" {
-  name        = "kind-server"
+  name        = "ubuntu-server"
   image       = "ubuntu-22.04"
   server_type = var.size
   datacenter  = "fsn1-dc14"
