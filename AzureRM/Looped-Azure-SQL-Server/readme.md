@@ -18,6 +18,45 @@ terraform apply   --auto-approve
 terraform destroy --auto-approve
 ```
 
+# Example usage
+
+```powershell
+$subId = "0c269579-ef66-4135-a0b0-2accafb8f99c"
+$rgName = "ibtestsqlsvr"
+$sqlServerName = "ibtestsqlsvrsqlserver"
+$sqlServerFQDN = "ibtestsqlsvrsqlserver.database.windows.net"
+$sqlAdmin = "sqladmin"
+$dbName = "restoredDB"
+$stgName = "ibtestsqlsvrstgblob"
+$stgUrl ="https://ibtestsqlsvrstgblob.blob.core.windows.net/data"
+$stgPrivateLinkName = ""
+$backupFilename = "Rows_info.bacpac"
+$sqlPwd = ""
+$stgKey = ""
+```
+
+```powershell
+New-AzSqlDatabaseImport -ResourceGroupName $rgName `
+-ServerName $sqlServerName -DatabaseName $dbName  `
+-DatabaseMaxSizeBytes "2147483648" -StorageKeyType "StorageAccessKey" `
+-StorageKey $stgKey `
+-StorageUri "$stgUrl/$backupFilename" `
+-Edition "Standard" -ServiceObjectiveName "S0" `
+-AdministratorLogin $sqlAdmin `
+-AdministratorLoginPassword $(ConvertTo-SecureString -String $sqlPwd -AsPlainText -Force)
+```
+
+```powershell
+New-AzSqlDatabaseImport -ResourceGroupName $rgName `
+-ServerName $sqlServerName -DatabaseName $dbName  `
+-DatabaseMaxSizeBytes "2147483648" -StorageKeyType "StorageAccessKey" `
+-StorageKey $stgKey `
+-StorageUri "$stgUrl/$backupFilename" `
+-Edition "Standard" -ServiceObjectiveName "S0" -UseNetworkIsolation $true `
+-StorageAccountResourceIdForPrivateLink "/subscriptions/0c269579-ef66-4135-a0b0-2accafb8f99c/resourceGroups/ibtestsqlsvr/providers/Microsoft.Storage/storageAccounts/ibtestsqlsvrstgblob" `
+-AdministratorLogin $sqlAdmin `
+-AdministratorLoginPassword $(ConvertTo-SecureString -String $sqlPwd -AsPlainText -Force)
+```
 
 # State Change
 
