@@ -49,6 +49,16 @@ Then add the IP of the Instance to the hosts list
 multipass list
 ```
 
+## Add SSH Key
+
+```bash
+sudo su
+passwd
+  enter new password
+echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config && service sshd restart
+ssh-copy-id -f -i ~/.ssh/ib_ssh.pub root@192.168.1.114
+```
+
 # Run Ansible Playbook
 
 Then run the playbook (multiple options as my shorcut)
