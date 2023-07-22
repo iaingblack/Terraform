@@ -30,7 +30,7 @@ resource "hcloud_server" "this" {
   image       = "ubuntu-22.04"
   server_type = var.size
   datacenter  = "fsn1-dc14"
-  ssh_keys    = ["IB SSH"]
+  ssh_keys    = ["IB_SSH"]
 
   provisioner "file" {
     source = "scripts/setup.sh"
